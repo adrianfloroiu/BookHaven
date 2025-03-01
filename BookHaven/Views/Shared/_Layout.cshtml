@@ -32,7 +32,7 @@
                     @inject SignInManager<ApplicationUser> SignInManager
                     @inject UserManager<ApplicationUser> UserManager
 
-                    <ul class="navbar-nav ms-auto px-4">
+                    <ul class="navbar-nav ms-md-auto px-md-4">
                         @if (SignInManager.IsSignedIn(User))
                         {
                             var appUser = await UserManager.GetUserAsync(User);
@@ -44,7 +44,7 @@
                                         @(appUser!.FirstName + " " + appUser!.LastName + " (Admin)")
                                     </a>
                                     <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="Index">Manage genres</a></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="Genres" asp-action="Index">Manage genres</a></li>
                                         <li><a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="Index">Manage books</a></li>
                                         <li><a class="dropdown-item" asp-area="" asp-controller="Auth" asp-action="Profile">Profile</a></li>
                                         <li><hr class="dropdown-divider"></li>

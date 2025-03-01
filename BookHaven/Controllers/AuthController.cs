@@ -100,5 +100,15 @@ namespace BookHaven.Controllers
 
             return RedirectToAction("Index", "Home");
         }
+
+        public IActionResult Profile()
+        {
+            return View();
+        }
+
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
     }
 }
