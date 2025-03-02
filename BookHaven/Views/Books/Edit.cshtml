@@ -1,0 +1,88 @@
+﻿@model BookEditDto
+
+@{
+    ViewData["Title"] = "Edit Book";
+}
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-warning">
+                    <h3 class="card-title mb-0">Edit Book</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="CurrentImageName" />
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label"></label>
+                            <input asp-for="Title" class="form-control" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Author" class="form-label"></label>
+                            <input asp-for="Author" class="form-control" />
+                            <span asp-validation-for="Author" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PublicationDate" class="form-label"></label>
+                                <input asp-for="PublicationDate" class="form-control" type="date" />
+                                <span asp-validation-for="PublicationDate" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="GenreId" class="form-label"></label>
+                                <select asp-for="GenreId" class="form-select" asp-items="ViewBag.Genres">
+                                    <option value="">-- Select Genre --</option>
+                                </select>
+                                <span asp-validation-for="GenreId" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <label asp-for="Image" class="form-label"></label>
+                                    <input asp-for="Image" class="form-control" type="file" accept="image/*" />
+                                    <div class="form-text">Leave empty to keep the current image.</div>
+                                    <span asp-validation-for="Image" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Current Image</label>
+                                    <div>
+                                        <img src="@(string.IsNullOrEmpty(Model.CurrentImageName) ? "/images/book-placeholder.png" : $"/images/books/{Model.CurrentImageName}")"
+                                             alt="Current Image" class="img-thumbnail" style="max-height: 100px;" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                            <button type="submit" class="btn btn-success">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

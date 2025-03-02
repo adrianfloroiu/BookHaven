@@ -1,38 +1,36 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BookHaven.Core.Entities
+namespace BookHaven.Core.DTO
 {
-    public class Book
+    public class BookCreateDto
     {
-        [Key]
-        public int Id { get; set; }
-
-        [Required]
+        [Required(ErrorMessage = "Title is required")]
         [StringLength(200)]
         public string Title { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Author is required")]
         [StringLength(100)]
         public string Author { get; set; }
 
         [StringLength(2000)]
         public string Description { get; set; }
 
+        [Required(ErrorMessage = "Publication date is required")]
+        [Display(Name = "Publication Date")]
         [DataType(DataType.Date)]
         public DateTime PublicationDate { get; set; }
 
-        [StringLength(100)]
-        public string? ImageName { get; set; }
+        [Display(Name = "Cover Image")]
+        public IFormFile? Image { get; set; }
 
+        [Required(ErrorMessage = "Please select a genre")]
+        [Display(Name = "Genre")]
         public int GenreId { get; set; }
-        public Genre Genre { get; set; }
-
-        public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 }

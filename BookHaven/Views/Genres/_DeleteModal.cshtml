@@ -1,0 +1,17 @@
+﻿@model Genre
+
+<div class="modal-header">
+    <h5 class="modal-title">Delete Genre</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<form asp-action="Delete" id="deleteGenreForm">
+    <div class="modal-body">
+        <input type="hidden" asp-for="Id" />
+        <p>Are you sure you want to delete the genre "<strong>@Model.Name</strong>"?</p>
+        <p class="text-danger">This action cannot be undone and will also remove this genre from all associated books.</p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-danger">Delete</button>
+    </div>
+</form>

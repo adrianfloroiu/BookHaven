@@ -7,12 +7,15 @@
 <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1>Manage Genres</h1>
-        <a asp-action="Create" class="btn btn-primary">Create New</a>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#genreModal"
+                onclick="loadModalContent('@Url.Action("Create")')">
+            Create New
+        </button>
     </div>
 
     <div class="p-2">
-        <table class="table table-responsive">
-            <thead>
+        <table class="table table-responsive table-hover">
+            <thead class="table-light">
                 <tr>
                     <th>Id</th>
                     <th>Name</th>
@@ -31,8 +34,16 @@
                         </td>
                         <td>
                             <div class="btn-group gap-2" role="group">
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning px-4 rounded-pill">Edit</a>
-                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger rounded-pill">Delete</a>
+                                <button onclick="loadModalContent('@Url.Action("Edit", new { id = item.Id })')"
+                                        class="btn btn-warning px-4 rounded-pill" data-bs-toggle="modal"
+                                        data-bs-target="#genreModal">
+                                    Edit
+                                </button>
+                                <button onclick="loadModalContent('@Url.Action("Delete", new { id = item.Id })')"
+                                        class="btn btn-danger rounded-pill" data-bs-toggle="modal"
+                                        data-bs-target="#genreModal">
+                                    Delete
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -41,3 +52,46 @@
         </table>
     </div>
 </div>
+
+<!-- Modal Container -->
+<div class="modal fade" id="genreModal" tabindex="-1" aria-labelledby="genreModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" id="modal-content">
+            <!-- Modal content -->
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function loadModalContent(url) {
+            $('#modal-content').load(url);
+        }
+
+        $(document).on('submit', '#createGenreForm, #editGenreForm, #deleteGenreForm', function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: this.action,
+                type: this.method,
+                data: $(this).serialize(),
+                success: function (result) {
+                    // Check if result contains validation errors
+                    if ($(result).find('.validation-summary-errors').length > 0 ||
+                        $(result).find('.field-validation-error').length > 0) {
+                        $('#modal-content').html(result);
+                    } else {
+                        $('#genreModal').modal('hide');
+                        location.reload();
+                    }
+                },
+                error: function (xhr) {
+                    // Handle server errors or return the form with validation errors
+                    $('#modal-content').html(xhr.responseText);
+                }
+            });
+        });
+    </script>
+}
