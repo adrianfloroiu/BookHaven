@@ -1,0 +1,108 @@
+﻿@model IEnumerable<BookListDto>
+@{
+    ViewData["Title"] = "Book Catalog";
+    var genres = ViewBag.Genres as IEnumerable<Genre>;
+    var selectedGenreId = ViewBag.SelectedGenreId as int?;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/catalog.css" asp-append-version="true">
+}
+
+<div class="container-fluid p-0">
+    <div class="row g-0">
+        <!-- Desktop Sidebar -->
+        <div class="col-md-3 col-lg-2 d-none d-md-block bg-light sidebar-desktop">
+            <div class="pt-4 px-3">
+                <h5 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mb-3">
+                    <span>Filter by genre</span>
+                </h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2">
+                        <a class="nav-link genre-link @(selectedGenreId == null ? "active" : "")"
+                           href="@Url.Action("Index")">
+                            All Books
+                        </a>
+                    </li>
+                    @foreach (var genre in genres)
+                    {
+                        <li class="nav-item mb-2">
+                            <a class="nav-link genre-link @(selectedGenreId == genre.Id ? "active" : "")"
+                               href="@Url.Action("Index", new { genreId = genre.Id })">
+                                @genre.Name
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <!-- Genre filter button -->
+        <div class="d-md-none pt-4 text-center">
+            <button class="btn btn-primary w-75 mx-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#genreOffcanvas" aria-controls="genreOffcanvas">
+                <i class="bi bi-filter"></i> Genre
+            </button>
+        </div>
+
+        <!-- Mobile offcanvas sidebar -->
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="genreOffcanvas" aria-labelledby="genreOffcanvasLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="genreOffcanvasLabel">Filter by Genre</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2">
+                        <a class="nav-link genre-link @(selectedGenreId == null ? "active" : "")"
+                           href="@Url.Action("Index")">
+                            All Books
+                        </a>
+                    </li>
+                    @foreach (var genre in genres)
+                    {
+                        <li class="nav-item mb-2">
+                            <a class="nav-link genre-link @(selectedGenreId == genre.Id ? "active" : "")"
+                               href="@Url.Action("Index", new { genreId = genre.Id })">
+                                @genre.Name
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-12 col-md-9 col-lg-10 ms-sm-auto">
+            <div class="pt-4 px-4">
+                <h1 class="mb-4">Book Catalog</h1>
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4 pb-2">
+                    @foreach (var book in Model)
+                    {
+                        <div class="col">
+                            <div class="card h-100 book-card" onclick="location.href='@Url.Action("Details", "Catalog", new { id = book.Id })'">
+                                <div class="book-image-container">
+                                    <img src="@book.ImagePath" class="card-img-top book-cover" alt="@book.Title">
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title book-title">@book.Title</h5>
+                                    <p class="card-subtitle text-muted mb-2 author-name">@book.Author</p>
+                                    <span class="badge genre-badge mt-2">@book.GenreName</span>
+                                    <p class="text-muted publication-date mt-2">
+                                        <small>Published: @book.PublicationDate.ToString("MMM yyyy")</small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @if (!Model.Any())
+                {
+                    <div class="alert alert-info mt-4">
+                        No books found.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

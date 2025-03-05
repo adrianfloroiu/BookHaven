@@ -34,7 +34,7 @@ namespace BookHaven.Infrastructure.Data
             var admin = new ApplicationUser()
             {
                 FirstName = "Admin",
-                LastName = "Admin",
+                LastName = "BookHaven",
                 UserName = "admin@bookhaven.com",
                 Email = "admin@bookhaven.com"
             };

@@ -34,5 +34,16 @@ namespace BookHaven.Infrastructure.Repositories
                 .ThenInclude(r => r.User)
                 .FirstOrDefaultAsync(b => b.Id == id);
         }
+
+        public async Task<IEnumerable<Book>> GetHighestRatedBooks(int count)
+        {
+            return await _context.Books
+                .Include(b => b.Genre)
+                .Include(b => b.Reviews)
+                .OrderByDescending(b => b.Reviews.Any() ? b.Reviews.Average(r => r.Rating) : 0)
+                .ThenByDescending(b => b.Reviews.Count)
+                .Take(count)
+                .ToListAsync();
+        }
     }
 }

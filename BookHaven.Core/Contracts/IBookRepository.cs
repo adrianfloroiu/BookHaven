@@ -7,5 +7,6 @@ namespace BookHaven.Core.Contracts
         Task<IEnumerable<Book>> GetBooksByGenreAsync(int genreId);
         Task<Book> GetBookWithDetailsAsync(int id);
         Task<IEnumerable<Book>> GetAllBooksWithGenresAsync();
+        Task<IEnumerable<Book>> GetHighestRatedBooks(int count);
     }
 }

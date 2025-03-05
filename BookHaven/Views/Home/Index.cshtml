@@ -1,8 +1,117 @@
-﻿@{
+﻿@model IEnumerable<BookListDto>
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!-- Hero Section -->
+<section class="hero text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 text-center text-md-start">
+                <h1 class="display-4 mb-4">Discover Your Next Great Read</h1>
+                <p class="lead mb-4">
+                    Explore a world of literature and help others choose the best books.
+                </p>
+                <div class="d-flex gap-3 justify-content-center justify-content-md-start">
+                    <a asp-controller="Catalog" asp-action="Index" class="btn btn-light">
+                        Browse Books
+                    </a>
+                    <a asp-controller="Auth" asp-action="Register" class="btn btn-outline-light">
+                        Join BookHaven
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <img src="/images/hero-books.png" alt="Book Collection"
+                     class="img-fluid" style="max-height: 450px;">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Highest Rated Books -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center fw-bolder mb-4">Highest Rated Books</h2>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+                @foreach (var book in Model)
+                {
+                    <div class="col">
+                        <div class="card h-100 book-card" onclick="location.href='@Url.Action("Details", "Catalog", new { id = book.Id })'">
+                            <div class="book-image-container">
+                                <img src="@book.ImagePath" class="card-img-top book-cover" alt="@book.Title">
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title book-title">@book.Title</h5>
+                                <p class="card-subtitle text-muted mb-2 author-name">@book.Author</p>
+                                <span class="badge genre-badge mt-2">@book.GenreName</span>
+                                <p class="text-muted publication-date mt-2">
+                                    <small>Published: @book.PublicationDate.ToString("MMM yyyy")</small>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info text-center" role="alert">
+                No top-rated books available at the moment.
+            </div>
+        }
+    </div>
+</section>
+
+<!-- Custom Styles -->
+<style>
+    .hero {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    }
+
+    .book-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        cursor: pointer;
+        text-align: center;
+    }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 10px rgba(0,0,0,0.1);
+        }
+
+    .book-image-container {
+        max-height: 300px;
+        overflow: hidden;
+    }
+
+    .book-cover {
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+    }
+
+    .book-title {
+        font-weight: 600;
+    }
+
+    .author-name {
+        font-size: 0.9rem;
+    }
+
+    .genre-badge {
+        background-color: #343a40;
+        font-weight: 400;
+    }
+
+    .publication-date {
+        font-size: 0.85rem;
+        margin-top: auto;
+    }
+</style>

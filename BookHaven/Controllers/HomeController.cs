@@ -1,26 +1,36 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using BookHaven.Models;
+using BookHaven.Core.Contracts;
+using BookHaven.Core.DTO;
 
 namespace BookHaven.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly IBookRepository _bookRepository;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(IBookRepository bookRepository)
     {
-        _logger = logger;
+        _bookRepository = bookRepository;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        return View();
-    }
+        var topRatedBooks = await _bookRepository.GetHighestRatedBooks(4);
+        var bookDTOs = topRatedBooks.Select(b => new BookListDto
+        {
+            Id = b.Id,
+            Title = b.Title,
+            Author = b.Author,
+            GenreName = b.Genre.Name,
+            PublicationDate = b.PublicationDate,
+            ImagePath = !string.IsNullOrEmpty(b.ImageName)
+                    ? $"/images/books/{b.ImageName}"
+                    : "/images/book-placeholder.png"
+        });
 
-    public IActionResult Privacy()
-    {
-        return View();
+        return View(bookDTOs);
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

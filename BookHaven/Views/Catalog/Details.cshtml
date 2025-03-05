@@ -1,0 +1,161 @@
+﻿@model BookDetailsDto
+@{
+    ViewData["Title"] = Model.Title;
+    var reviewForm = ViewBag.ReviewForm as ReviewCreateDto;
+}
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Catalog" asp-action="Index">Books</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Title</li>
+        </ol>
+    </nav>
+
+    <div class="row mb-4">
+        <!-- Book Image -->
+        <div class="col-lg-4 mb-4">
+            <div class="mx-auto book-image-container">
+                <img src="@Model.ImagePath" class="img-fluid rounded" alt="@Model.Title">
+            </div>
+        </div>
+
+        <!-- Book Details -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header text-white text-center bg-dark">
+                    <h2 class="mb-0 fs-1">@Model.Title</h2>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h3>Written by @Model.Author</h3>
+                        <div class="px-1">
+                            <div class="fs-6">Average Rating</div>
+                            <div class="stars">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="bi @(i <= Math.Round(Model.AverageRating) ? "bi-star-fill" : "bi-star")" style="color: gold;"></i>
+                                }
+                            </div>
+                            <p>
+                                <span>@Model.AverageRating.ToString("0.0")</span> / 5
+                            </p>
+                        </div>
+                        <div class="d-flex gap-2 justify-content-start align-items-center py-2">
+                            <span class="fs-5">Genre:</span>
+                            <span class="badge bg-dark p-2">@Model.GenreName</span>
+                        </div>
+                        <div class="text-muted">First published in @Model.PublicationDate.ToString("MMMM yyyy")</div>
+                    </div>
+
+                    <h5>Description</h5>
+                    <p class="book-description">@Model.Description</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <section class="mx-auto">
+        <!-- Reviews Section -->
+        <div class="card">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">Reviews (@Model.Reviews.Count())</h3>
+                <a class="btn btn-light" href="#reviewForm">Write review</a>
+            </div>
+            <div class="card-body">
+                @if (Model.Reviews.Any())
+                {
+                    <div>
+                        @foreach (var r in Model.Reviews)
+                        {
+                            <div class="review-item card mb-3">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div class="user-info">
+                                            <strong>@r.User.FirstName @r.User.LastName</strong>
+                                        </div>
+                                        <div class="rating">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="bi @(i <= r.Rating ? "bi-star-fill" : "bi-star")" style="color: gold;"></i>
+                                            }
+                                        </div>
+                                    </div>
+                                    <p class="review-text mb-0">@r.Comment</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        No reviews yet. Be the first to review this book!
+                    </div>
+                }
+
+                <!-- Review Form -->
+                <div id="reviewForm" class="mt-4">
+                    <h3 class="mb-3">Write Review</h3>
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <form asp-action="AddReview" method="post">
+                            <input type="hidden" name="BookId" value="@Model.Id" />
+
+                            <div class="mb-3">
+                                <label class="form-label fs-5">Rating</label>
+                                <div class="d-flex gap-3">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="Rating" id="rating@(i)" value="@i"
+                                            @(reviewForm?.Rating == i ? "checked" : "")>
+                                            <label class="form-check-label" for="rating@(i)">@i</label>
+                                        </div>
+                                    }
+                                </div>
+                                <span class="text-danger field-validation-valid" data-valmsg-for="Rating" data-valmsg-replace="true"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="Comment" class="form-label fs-5">Review</label>
+                                <textarea name="Comment" id="Comment" class="form-control" rows="3">@(reviewForm?.Comment)</textarea>
+                                <span class="text-danger field-validation-valid" data-valmsg-for="Comment" data-valmsg-replace="true"></span>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Submit review</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            Please <a asp-controller="Auth" asp-action="Login">log in</a> to leave a review.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+    .book-image-container {
+        max-width: 30rem;
+    }
+
+    .book-description {
+        white-space: pre-line;
+        padding: 1rem 0;
+    }
+
+    .review-item {
+        border-left: 4px solid #007bff;
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
