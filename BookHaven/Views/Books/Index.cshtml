@@ -1,4 +1,4 @@
-﻿@model IEnumerable<BookListDto>
+﻿@model BooksViewModel
 
 @{
     ViewData["Title"] = "Manage Books";
@@ -23,7 +23,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model)
+                @foreach (var item in Model.Books)
                 {
                     <tr>
                         <td>
@@ -44,4 +44,38 @@
             </tbody>
         </table>
     </div>
+
+    <nav aria-label="Books pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+            @{
+                var prevDisabled = !Model.PaginatedList.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.PaginatedList.HasNextPage ? "disabled" : "";
+            }
+
+            <li class="page-item @prevDisabled">
+                <a asp-action="Index"
+                   asp-route-pageIndex="@(Model.PaginatedList.PageIndex - 1)"
+                   class="page-link">
+                    Previous
+                </a>
+            </li>
+
+            @for (int i = 1; i <= Model.PaginatedList.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PaginatedList.PageIndex ? "active" : "")">
+                    <a asp-action="Index" asp-route-pageIndex="@i" class="page-link">
+                        @i
+                    </a>
+                </li>
+            }
+
+            <li class="page-item @nextDisabled">
+                <a asp-action="Index"
+                   asp-route-pageIndex="@(Model.PaginatedList.PageIndex + 1)"
+                   class="page-link">
+                    Next
+                </a>
+            </li>
+        </ul>
+    </nav>
 </div>

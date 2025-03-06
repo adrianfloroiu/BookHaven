@@ -1,6 +1,7 @@
 ﻿using BookHaven.Core.Contracts;
 using BookHaven.Core.DTO;
 using BookHaven.Core.Entities;
+using BookHaven.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ namespace BookHaven.Controllers
         private readonly IGenreRepository _genreRepository;
         private readonly IReviewRepository _reviewRepository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private const int booksPerPage = 8;
 
         public CatalogController(
             IBookRepository bookRepository,
@@ -26,22 +28,15 @@ namespace BookHaven.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index(int? genreId)
+        public async Task<IActionResult> Index(int? genreId, string? searchTerm, int pageIndex = 1)
         {
             ViewBag.Genres = await _genreRepository.GetAllAsync();
             ViewBag.SelectedGenreId = genreId;
+            ViewBag.SearchTerm = searchTerm;
 
-            IEnumerable<Book> books;
-            if (genreId.HasValue)
-            {
-                books = await _bookRepository.GetBooksByGenreAsync(genreId.Value);
-            }
-            else
-            {
-                books = await _bookRepository.GetAllBooksWithGenresAsync();
-            }
+            var paginatedBooks = await _bookRepository.GetPaginatedBooksAsync(pageIndex, booksPerPage, genreId, searchTerm);
 
-            var bookDTOs = books.Select(b => new BookListDto
+            var bookDTOs = paginatedBooks.Select(b => new BookListDto
             {
                 Id = b.Id,
                 Title = b.Title,
@@ -53,7 +48,13 @@ namespace BookHaven.Controllers
                     : "/images/book-placeholder.png"
             });
 
-            return View(bookDTOs);
+            var viewModel = new BooksViewModel
+            {
+                Books = bookDTOs.ToList(),
+                PaginatedList = paginatedBooks,
+            };
+
+            return View(viewModel);
         }
 
         public async Task<IActionResult> Details(int id)
@@ -124,7 +125,7 @@ namespace BookHaven.Controllers
             };
 
             ViewBag.ReviewForm = reviewDto;
-            
+
             foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
             {
                 ModelState.AddModelError("", error.ErrorMessage);

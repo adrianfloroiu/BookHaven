@@ -1,6 +1,7 @@
 ﻿using BookHaven.Core.Contracts;
 using BookHaven.Core.DTO;
 using BookHaven.Core.Entities;
+using BookHaven.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -13,6 +14,7 @@ namespace BookHaven.Controllers
         private readonly IBookRepository _bookRepository;
         private readonly IGenreRepository _genreRepository;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private const int booksPerPage = 5;
 
         public BooksController(
             IBookRepository bookRepository,
@@ -24,10 +26,10 @@ namespace BookHaven.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int pageIndex = 1)
         {
-            var books = await _bookRepository.GetAllBooksWithGenresAsync();
-            var bookDTOs = books.Select(b => new BookListDto
+            var paginatedBooks = await _bookRepository.GetPaginatedBooksAsync(pageIndex, booksPerPage);
+            var bookDTOs = paginatedBooks.Select(b => new BookListDto
             {
                 Id = b.Id,
                 Title = b.Title,
@@ -39,7 +41,13 @@ namespace BookHaven.Controllers
                     : "/images/book-placeholder.png"
             });
 
-            return View(bookDTOs);
+            var viewModel = new BooksViewModel
+            {
+                Books = bookDTOs.ToList(),
+                PaginatedList = paginatedBooks
+            };
+
+            return View(viewModel);
         }
 
         public async Task<IActionResult> Create()

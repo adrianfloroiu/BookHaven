@@ -1,5 +1,6 @@
 ﻿using BookHaven.Core.Contracts;
 using BookHaven.Core.Entities;
+using BookHaven.Core.Helpers;
 using BookHaven.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -44,6 +45,30 @@ namespace BookHaven.Infrastructure.Repositories
                 .ThenByDescending(b => b.Reviews.Count)
                 .Take(count)
                 .ToListAsync();
+        }
+
+        public async Task<PaginatedList<Book>> GetPaginatedBooksAsync(int pageIndex, int pageSize, int? genreId = null, string? searchTerm = null)
+        {
+            var query = _context.Books
+                .Include(b => b.Genre)
+                .AsQueryable();
+
+            // Genre
+            if (genreId.HasValue)
+            {
+                query = query.Where(b => b.GenreId == genreId.Value);
+            }
+
+            // Search
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var searchTermLower = searchTerm.ToLower();
+                query = query.Where(b =>
+                    b.Title.ToLower().Contains(searchTermLower) ||
+                    b.Author.ToLower().Contains(searchTermLower));
+            }
+
+            return await PaginatedList<Book>.CreateAsync(query, pageIndex, pageSize);
         }
     }
 }

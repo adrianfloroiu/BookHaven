@@ -1,8 +1,9 @@
-﻿@model IEnumerable<BookListDto>
+﻿@model BooksViewModel
 @{
     ViewData["Title"] = "Book Catalog";
     var genres = ViewBag.Genres as IEnumerable<Genre>;
     var selectedGenreId = ViewBag.SelectedGenreId as int?;
+    var searchTerm = ViewBag.SearchTerm as string;
 }
 
 @section Styles {
@@ -28,7 +29,7 @@
                     {
                         <li class="nav-item mb-2">
                             <a class="nav-link genre-link @(selectedGenreId == genre.Id ? "active" : "")"
-                               href="@Url.Action("Index", new { genreId = genre.Id })">
+                               href="@Url.Action("Index", new { genreId = genre.Id, searchTerm = searchTerm })">
                                 @genre.Name
                             </a>
                         </li>
@@ -37,7 +38,7 @@
             </div>
         </div>
 
-        <!-- Genre filter button -->
+        <!-- Genre filter button for mobile -->
         <div class="d-md-none pt-4 text-center">
             <button class="btn btn-primary w-75 mx-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#genreOffcanvas" aria-controls="genreOffcanvas">
                 <i class="bi bi-filter"></i> Genre
@@ -74,9 +75,21 @@
         <!-- Main Content -->
         <div class="col-12 col-md-9 col-lg-10 ms-sm-auto">
             <div class="pt-4 px-4">
-                <h1 class="mb-4">Book Catalog</h1>
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-6">
+                        <h1>Book Catalog</h1>
+                    </div>
+                    <div class="col-md-6 py-3">
+                        <form asp-action="Index" method="get" class="d-flex">
+                            <input type="hidden" name="genreId" value="@selectedGenreId" />
+                            <input type="search" name="searchTerm" class="form-control me-2" placeholder="Search books..." value="@searchTerm" />
+                            <button type="submit" class="btn btn-primary">Search</button>
+                        </form>
+                    </div>
+                </div>
+
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4 pb-2">
-                    @foreach (var book in Model)
+                    @foreach (var book in Model.Books)
                     {
                         <div class="col">
                             <div class="card h-100 book-card" onclick="location.href='@Url.Action("Details", "Catalog", new { id = book.Id })'">
@@ -96,12 +109,44 @@
                     }
                 </div>
 
-                @if (!Model.Any())
+                @if (!Model.Books.Any())
                 {
-                    <div class="alert alert-info mt-4">
+                    <div class="alert alert-info mt-4 pt-3">
                         No books found.
+                        @if (!string.IsNullOrWhiteSpace(searchTerm))
+                        {
+                            <p>Try a different search term or clear the search.</p>
+                        }
                     </div>
                 }
+
+                <!-- Pagination -->
+                <nav aria-label="Book catalog pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        @{
+                            var prevDisabled = !Model.PaginatedList.HasPreviousPage ? "disabled" : "";
+                            var nextDisabled = !Model.PaginatedList.HasNextPage ? "disabled" : "";
+                        }
+                        <li class="page-item @prevDisabled">
+                            <a asp-action="Index" asp-route-pageIndex="@(Model.PaginatedList.PageIndex - 1)" asp-route-genreId="@selectedGenreId" asp-route-searchTerm="@searchTerm" class="page-link">
+                                Previous
+                            </a>
+                        </li>
+                        @for (int i = 1; i <= Model.PaginatedList.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.PaginatedList.PageIndex ? "active" : "")">
+                                <a asp-action="Index" asp-route-pageIndex="@i" asp-route-genreId="@selectedGenreId" asp-route-searchTerm="@searchTerm" class="page-link">
+                                    @i
+                                </a>
+                            </li>
+                        }
+                        <li class="page-item @nextDisabled">
+                            <a asp-action="Index" asp-route-pageIndex="@(Model.PaginatedList.PageIndex + 1)" asp-route-genreId="@selectedGenreId" asp-route-searchTerm="@searchTerm" class="page-link">
+                                Next
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>

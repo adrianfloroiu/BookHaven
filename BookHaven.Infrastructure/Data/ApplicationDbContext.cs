@@ -31,7 +31,7 @@ namespace BookHaven.Infrastructure.Data
                 .WithMany(b => b.Reviews)
                 .HasForeignKey(r => r.BookId)
                 .OnDelete(DeleteBehavior.Cascade);
-            
+
             // User - Review
             modelBuilder.Entity<Review>()
                 .HasOne(r => r.User)
